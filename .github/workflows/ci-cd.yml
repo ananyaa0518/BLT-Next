@@ -40,7 +40,7 @@ jobs:
       - name: Run tests (if configured)
         run: npm test --if-present
 
-      - name: Check Python worker syntax
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
