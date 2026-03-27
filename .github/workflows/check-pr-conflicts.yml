@@ -15,6 +15,10 @@ permissions:
   pull-requests: write
   issues: write
 
+concurrency:
+  group: conflict-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check_conflicts:
     runs-on: ubuntu-latest
