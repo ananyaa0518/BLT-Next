@@ -11,6 +11,7 @@ ALLOWED_ORIGINS = [
     'https://owasp-blt.github.io',
     'http://localhost:3000',
     'http://localhost:8000',
+    'http://localhost:8787',  # default wrangler dev port
 ]
 
 FRONTEND_SECURITY_HEADERS = {
