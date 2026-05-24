@@ -536,7 +536,8 @@ async function init() {
     try {
         setupEventHandlers();
     } catch (error) {
-        // Silently fail or log sparingly in production
+        console.error('Failed to set up event handlers during initialization:', error);
+        UIComponents.showNotification('Some UI features failed to initialize. Check the console for details.', 'error');
     }
 
     // Check authentication status in background
@@ -544,7 +545,8 @@ async function init() {
         await auth.checkAuth();
         updateUIForAuth();
     } catch (error) {
-        // Auth check failure is handled by UI state
+        console.error('Failed to complete authentication check during initialization:', error);
+        UIComponents.showNotification('Authentication status could not be verified. The app may not fully reflect your session state.', 'error');
     }
 
     // Update footer with last modified date
