@@ -37,6 +37,31 @@ function clearAuthToken() {
     sessionStorage.removeItem(TOKEN_KEY);
 }
 
+function getPagePath(pageName) {
+    if (window.location.pathname.includes('/pages/')) {
+        return `${pageName}.html`;
+    }
+
+    return `pages/${pageName}.html`;
+}
+
+function setNavigationTarget(element, pageName) {
+    if (!element) return;
+
+    const target = getPagePath(pageName);
+    const tagName = element.tagName.toLowerCase();
+
+    if (tagName === 'a') {
+        element.href = target;
+        element.onclick = null;
+        return;
+    }
+
+    element.onclick = () => {
+        window.location.href = target;
+    };
+}
+
 // ===================================
 // State Management
 // ===================================
@@ -270,65 +295,18 @@ class UIComponents {
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
-    // Login button (modal only for button elements)
+    // Login button navigates to login page.
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn && loginBtn.tagName.toLowerCase() === 'button') {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
-
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
-            }
-        });
+        setNavigationTarget(loginBtn, 'login');
     }
 
-    // Signup buttons (modal only for button elements)
+    // Signup buttons navigate to signup page.
     const signupButtons = ['signupBtn', 'ctaSignupBtn'];
     signupButtons.forEach(btnId => {
         const btn = document.getElementById(btnId);
         if (btn && btn.tagName.toLowerCase() === 'button') {
-            btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
-
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
-
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
-                }
-            });
+            setNavigationTarget(btn, 'signup');
         }
     });
 
@@ -453,12 +431,13 @@ function updateUIForAuth() {
         // Update buttons/links to show user menu
         if (loginBtn) {
             loginBtn.textContent = user.username;
-            loginBtn.href = '/pages/profile.html';
-            loginBtn.onclick = null;
+            setNavigationTarget(loginBtn, 'profile');
         }
         if (signupBtn) {
             signupBtn.textContent = 'Logout';
-            signupBtn.href = '#';
+            if (signupBtn.tagName.toLowerCase() === 'a') {
+                signupBtn.href = '#';
+            }
             signupBtn.classList.remove('btn-primary');
             signupBtn.classList.add('btn-secondary');
             signupBtn.onclick = async (e) => {
@@ -472,15 +451,13 @@ function updateUIForAuth() {
         // Reset to default unauthenticated state
         if (loginBtn) {
             loginBtn.textContent = 'Login';
-            loginBtn.href = 'pages/login.html';
-            loginBtn.onclick = null;
+            setNavigationTarget(loginBtn, 'login');
         }
         if (signupBtn) {
             signupBtn.textContent = 'Sign Up';
-            signupBtn.href = 'pages/signup.html';
+            setNavigationTarget(signupBtn, 'signup');
             signupBtn.classList.remove('btn-secondary');
             signupBtn.classList.add('btn-primary');
-            signupBtn.onclick = null;
         }
     }
 }
